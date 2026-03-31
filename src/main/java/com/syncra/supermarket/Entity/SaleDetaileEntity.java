@@ -1,5 +1,6 @@
 package com.syncra.supermarket.Entity;
- 
-public class SupplierEntity {
 
+public class SaleDetaileEntity {
+
+    
 }
