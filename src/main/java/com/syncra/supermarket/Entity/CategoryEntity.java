@@ -12,9 +12,9 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "categories")
+@Table(name = "category")
 
-public class CategorieEntity {
+public class CategoryEntity {
 
 @Id
 
