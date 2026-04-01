@@ -1,5 +1,5 @@
 package com.syncra.supermarket.Service;
 
-public class CategorieService {
+public class CategoryService {
     
 }
