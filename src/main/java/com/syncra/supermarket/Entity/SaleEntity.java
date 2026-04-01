@@ -13,7 +13,7 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "sales")
+@Table(name = "sale")
 
 public class SaleEntity {
 
@@ -25,7 +25,7 @@ public class SaleEntity {
 
     @ManyToOne
     @JoinColumn (name = "employee_id")
-    private EmployeEntity employee;
+    private EmployeeEntity employee;
 
     @Column(name = "subtotal")
     private Double subtotal;
