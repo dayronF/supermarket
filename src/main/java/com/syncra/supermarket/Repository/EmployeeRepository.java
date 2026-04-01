@@ -1,5 +1,5 @@
 package com.syncra.supermarket.Repository;
 
-public class EmployeRepository {
+public class EmployeeRepository {
     
 }
