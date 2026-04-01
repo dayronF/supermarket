@@ -1,11 +1,11 @@
-package com.syncra.supermarket.Dto.Employee;
+package com.syncra.supermarket.Dto.SupplierProduct;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class EmployeeMessage {
+public class SupplierProductMessage {
 
     private String message;
 }
