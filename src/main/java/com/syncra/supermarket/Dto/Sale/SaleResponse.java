@@ -1,19 +1,19 @@
 package com.syncra.supermarket.Dto.Sale;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.syncra.supermarket.Dto.SaleDetail.SaleDetailResponse;
+import lombok.Data;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+import java.time.LocalDateTime;
+import java.util.List;
 
+@Data
 public class SaleResponse {
-    
-private Long saleId;
 
+    private Integer id;
+    private LocalDateTime date;
+    private String employeeName;
+    private Double subtotal;
+    private Double iva;
+    private Double total;
+    private List<SaleDetailResponse> details;
 }

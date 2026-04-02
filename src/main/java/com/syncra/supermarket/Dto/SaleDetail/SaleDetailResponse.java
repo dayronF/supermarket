@@ -1,26 +1,13 @@
 package com.syncra.supermarket.Dto.SaleDetail;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Data
 public class SaleDetailResponse {
-    
-private Long detailId;
 
-    private Long sale_id;
-    private Long product_id;
+    private Integer id;
     private String productName;
-    private String barCode;
     private Integer quantity;
-    private Double unitPrice;
-    private Double lineSubtotal;
-
+    private Double priceUnitary;
+    private Double subtotalDetail;
 }

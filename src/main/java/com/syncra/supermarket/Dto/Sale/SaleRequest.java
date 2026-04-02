@@ -1,38 +1,22 @@
 package com.syncra.supermarket.Dto.Sale;
 
-import java.util.List;
-
+import com.syncra.supermarket.Dto.SaleDetail.SaleDetailRequest;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.Positive;
+import lombok.Data;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+import java.util.List;
+
+@Data
 public class SaleRequest {
-    
-@NotNull(message = "El id del empleado es obligatorio")
-    private Long employeeId;
 
-    @NotEmpty(message = "La venta debe contener al menos un producto")
+    @NotNull(message = "La cédula del empleado es obligatoria")
+    @Positive(message = "La cédula debe ser mayor a 0")
+    private Integer employeeCc;
+
+    @NotEmpty(message = "La venta debe tener al menos un producto")
     @Valid
-    private List<SaleItemRequest> items;
-
-    public static class SaleItemRequest {
-        @NotNull(message = "El id del producto es obligatorio")
-        private Long productId;
-
-    @NotNull(message = "La cantidad es obligatoria")
-    @Min(value = 1, message = "La cantidad debe ser minimo uno")
-    private Integer quantity;
-    }
-
+    private List<SaleDetailRequest> items;
 }
