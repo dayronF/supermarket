@@ -11,6 +11,5 @@ public class ProductResponse {
     private Double price;
     private Integer stock;
     private Boolean state;
-
     private String categoryName;
 }

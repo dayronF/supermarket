@@ -1,21 +1,11 @@
 package com.syncra.supermarket.Dto.Supplier;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Data
 public class SupplierResponse {
-    
-private Long id;
 
-    private String nombre;
+    private Integer id;
     private String nit;
-
+    private String name;
 }
