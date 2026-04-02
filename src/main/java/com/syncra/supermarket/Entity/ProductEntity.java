@@ -1,7 +1,6 @@
 package com.syncra.supermarket.Entity;
 
-
-import java.util.Locale.Category;
+import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,6 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
 
@@ -33,7 +33,13 @@ public class ProductEntity {
     private boolean state;
 
     @ManyToOne
-    @JoinColumn(name = "categories_id")
-    private Category category;
+    @JoinColumn(name = "category_id")
+    private CategoryEntity category;
+
+    @OneToMany(mappedBy = "product")
+    private List<SupplierProductEntity> supplierProducts;
+
+    @OneToMany(mappedBy = "product")
+    private List<SaleDetailEntity> saleDetails;
 
 }

@@ -1,10 +1,12 @@
 package com.syncra.supermarket.Entity;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
 
@@ -14,16 +16,23 @@ import lombok.Data;
 
 public class EmployeeEntity {
 
+    public enum Post {
+        ADMINISTRADOR, CAJERO, AUXILIAR
+    }
+
     @Id
-    @Column(name = "id")
-    private int id;
+    @Column(name = "cc")
+    private int cc;
     @Column(name = "name")
     private String name;
     @Column(name = "post")
-    private String post;
-    @Column(name = " entry_date")
-    private LocalDate entry_date;
+    private Post post;
+    @Column(name = "entry_date")
+    private LocalDate entrydate;
     @Column(name = "salary")
     private Double salary;
+
+    @OneToMany(mappedBy = "employee")
+    private List<SaleEntity> sales;
 
 }
