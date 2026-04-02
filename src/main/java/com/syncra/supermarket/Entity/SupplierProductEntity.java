@@ -1,5 +1,7 @@
 package com.syncra.supermarket.Entity;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -19,4 +21,9 @@ public class SupplierProductEntity {
     @ManyToOne
     @JoinColumn(name = "supplier_id")
     private SupplierEntity supplier;
+
+    @Column(name = "quantity")
+    private Integer quantity;
+    @Column(name = "entry_date")
+    private LocalDateTime entryDate;
 }
