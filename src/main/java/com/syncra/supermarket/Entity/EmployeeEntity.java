@@ -26,8 +26,8 @@ public class EmployeeEntity {
     @Column(name = "cc")
     private int cc;
     @Column(name = "name")
-    @Enumerated(EnumType.STRING)
     private String name;
+    @Enumerated(EnumType.STRING)
     @Column(name = "post")
     private Post post;
     @Column(name = "entry_date")
