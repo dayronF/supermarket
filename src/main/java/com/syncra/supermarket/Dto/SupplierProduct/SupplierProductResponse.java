@@ -2,12 +2,14 @@ package com.syncra.supermarket.Dto.SupplierProduct;
 
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 public class SupplierProductResponse {
 
-    private Integer productId;
+    private Integer id;
     private String productName;
-
-    private Integer supplierId;
     private String supplierName;
+    private Integer quantity;
+    private LocalDateTime entryDate;
 }

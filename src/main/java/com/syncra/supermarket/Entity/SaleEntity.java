@@ -1,9 +1,9 @@
 package com.syncra.supermarket.Entity;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -39,6 +39,6 @@ public class SaleEntity {
     @Column(name = "total")
     private Double total;
 
-    @OneToMany(mappedBy = "sale")
+    @OneToMany(mappedBy = "sale", cascade = CascadeType.ALL)
     private List<SaleDetailEntity> saleDetails;
 }

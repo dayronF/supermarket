@@ -1,5 +1,5 @@
 package com.syncra.supermarket.Controller;
 
-public class EmployeController {
+public class CategoryController {
     
 }
