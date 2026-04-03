@@ -1,89 +1,70 @@
 package com.syncra.supermarket.Service;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
 import com.syncra.supermarket.Dto.Category.CategoryMessage;
 import com.syncra.supermarket.Dto.Category.CategoryRequest;
 import com.syncra.supermarket.Dto.Category.CategoryResponse;
-import com.syncra.supermarket.Dto.Product.ProductResponse;
 import com.syncra.supermarket.Entity.CategoryEntity;
 import com.syncra.supermarket.Repository.CategoryRepository;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class CategoryService {
 
-    @Autowired
-    private CategoryRepository categoryRepository;
-
-  
-    private CategoryResponse toResponse(CategoryEntity category) {
-        CategoryResponse response = new CategoryResponse();
-        response.setId(category.getId());
-        response.setName(category.getName());
-
-   
-        List<ProductResponse> products = category.getProducts().stream()
-                .map(prod -> {
-                    ProductResponse productResponse = new ProductResponse();
-                    productResponse.setId(prod.getId());
-                    productResponse.setName(prod.getName());
-                    return productResponse;
-                })
-                .collect(Collectors.toList());
-
-        response.setProducts(products);
-        return response;
-    }
-
-  
-    public List<CategoryResponse> getAllCategories() {
-        List<CategoryEntity> categories = categoryRepository.findAll();
-
-        return categories.stream()
-                .map(cat -> toResponse(cat))
-                .collect(Collectors.toList());
-    }
-
- 
-    public CategoryResponse getCategoryById(Integer id) {
-        CategoryEntity category = categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
-
-        return toResponse(category);
-    }
-
+    private final CategoryRepository categoryRepository;
 
     public CategoryMessage createCategory(CategoryRequest request) {
         CategoryEntity category = new CategoryEntity();
         category.setName(request.getName());
-
         categoryRepository.save(category);
-
-        return new CategoryMessage("Categoría creada exitosamente");
+        return new CategoryMessage("Categoría " + category.getName() + " creada exitosamente");
     }
 
-    
-    public CategoryMessage updateCategory(Integer id, CategoryRequest request) {
-        CategoryEntity category = categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+    public List<CategoryResponse> listCategory() {
+        return categoryRepository.findAll().stream()
+                .map(category -> {
+                    CategoryResponse response = new CategoryResponse();
+                    response.setId(category.getId());
+                    response.setName(category.getName());
+                    return response;
+                })
+                .collect(Collectors.toList());
+    }
 
+    public CategoryResponse searchId(int id) {
+        Optional<CategoryEntity> categoryOptional = categoryRepository.findById(id);
+        if (categoryOptional.isEmpty()) {
+            return null;
+        }
+        CategoryResponse response = new CategoryResponse();
+        response.setId(categoryOptional.get().getId());
+        response.setName(categoryOptional.get().getName());
+        return response;
+    }
+
+    public CategoryMessage updateCategory(int id, CategoryRequest request) {
+        Optional<CategoryEntity> categoryOptional = categoryRepository.findById(id);
+        if (categoryOptional.isEmpty()) {
+            return new CategoryMessage("Categoría no encontrada");
+        }
+        CategoryEntity category = categoryOptional.get();
         category.setName(request.getName());
         categoryRepository.save(category);
-
-        return new CategoryMessage("Categoría actualizada exitosamente");
+        return new CategoryMessage("Categoría " + category.getName() + " actualizada exitosamente");
     }
 
-
-    public CategoryMessage deleteCategory(Integer id) {
-        categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
-
-        categoryRepository.deleteById(id);
-
-        return new CategoryMessage("Categoría eliminada exitosamente");
+    public CategoryMessage deleteCategory(int id) {
+        if (categoryRepository.existsById(id)) {
+            categoryRepository.deleteById(id);
+            return new CategoryMessage("Categoría eliminada exitosamente");
+        }
+        return new CategoryMessage("Categoría no encontrada");
     }
 }
