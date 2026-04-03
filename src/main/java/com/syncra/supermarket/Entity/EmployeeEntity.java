@@ -5,6 +5,8 @@ import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -24,6 +26,7 @@ public class EmployeeEntity {
     @Column(name = "cc")
     private int cc;
     @Column(name = "name")
+    @Enumerated(EnumType.STRING)
     private String name;
     @Column(name = "post")
     private Post post;
