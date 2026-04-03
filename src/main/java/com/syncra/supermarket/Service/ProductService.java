@@ -13,24 +13,28 @@ import com.syncra.supermarket.Entity.ProductEntity;
 import com.syncra.supermarket.Repository.CategoryRepository;
 import com.syncra.supermarket.Repository.ProductRepository;
 
+import lombok.AllArgsConstructor;
+
 @Service
+@AllArgsConstructor
 public class ProductService {
 
-    private ProductRepository productRepository;
-    private CategoryRepository categoryRepository;
-
-    ProductMessage message = new ProductMessage(null);
+    private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
 
     public ProductMessage CreateProduct(ProductRequest producto) {
+        ProductMessage message = new ProductMessage(null);
 
         if (productRepository.ExistBarCode(producto.getBarcode())) {
-            message.setMessage(
-                    "El codigo de barras ya esta registrado en otro producto el cual es " + producto.getName());
+            message.setMessage("El codigo de barras ya esta registrado en otro producto el cual es " + producto.getName());
+            return message;
         }
 
         Optional<CategoryEntity> categoria = categoryRepository.findById(producto.getCategoryId());
         if (categoria.isEmpty()) {
             message.setMessage("Categoria no encontrada por id");
+            return message;
+
         }
 
         ProductEntity Producto = new ProductEntity();
@@ -57,6 +61,7 @@ public class ProductService {
 
             ProductResponse productResponse = new ProductResponse();
             productResponse.setId(product.getId());
+            productResponse.setName(product.getName());
             productResponse.setBarcode(product.getBarcode());
             productResponse.setPrice(product.getPrice());
             productResponse.setStock(product.getStock());
@@ -68,6 +73,7 @@ public class ProductService {
     }
 
     public ProductMessage SeacrhId(int id) {
+        ProductMessage message = new ProductMessage(null);
 
         Optional<ProductEntity> prodOptional = productRepository.findById(id);
         if (prodOptional.isEmpty()) {
@@ -83,17 +89,18 @@ public class ProductService {
         }
 
         ProductResponse response = new ProductResponse();
-        response.setId(prodOptional.get().getId());
-        response.setBarcode(prodOptional.get().getBarcode());
-        response.setPrice(prodOptional.get().getPrice());
-        response.setStock(prodOptional.get().getStock());
-        response.setCategoryName(prodOptional.get().getCategory().getName());
+        response.setId(produc.getId());
+        response.setBarcode(produc.getBarcode());
+        response.setPrice(produc.getPrice());
+        response.setStock(produc.getStock());
+        response.setCategoryName(produc.getCategory().getName());
 
         message.setMessage(response.toString());
         return message;
     }
 
     public ProductMessage Update(int id, ProductRequest productRequest) {
+        ProductMessage message = new ProductMessage(null);
 
         Optional<ProductEntity> opcion = productRepository.findById(id);
         Optional<ProductEntity> ExistBarCode = productRepository.findByBarcode(productRequest.getBarcode());
@@ -108,7 +115,7 @@ public class ProductService {
             return message;
         }
 
-        ProductEntity productEntity = new ProductEntity();
+        ProductEntity productEntity = opcion.get();
         productEntity.setBarcode(productRequest.getBarcode());
         productEntity.setName(productRequest.getName());
         productEntity.setPrice(productRequest.getPrice());
@@ -127,13 +134,14 @@ public class ProductService {
     }
 
     public ProductMessage DeleteProduct(int id) {
+        ProductMessage message = new ProductMessage(null);
+
         Optional<ProductEntity> opcion = productRepository.findById(id);
 
         if (opcion.isEmpty()) {
             message.setMessage("Producto no encontrado");
             return message;
         }
-
 
         ProductEntity productEntity = opcion.get();
         productEntity.setState(false);
