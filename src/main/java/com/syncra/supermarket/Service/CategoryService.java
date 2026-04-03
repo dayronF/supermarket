@@ -21,6 +21,13 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
 
     public CategoryMessage createCategory(CategoryRequest request) {
+
+        if (categoryRepository.existsByName(request.getName()))
+
+        {
+            return new CategoryMessage("Ya existe una categoría con ese nombre");
+        }
+
         CategoryEntity category = new CategoryEntity();
         category.setName(request.getName());
         categoryRepository.save(category);
