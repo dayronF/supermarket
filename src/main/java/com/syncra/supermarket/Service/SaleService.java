@@ -92,7 +92,7 @@ public class SaleService {
     }
 
     public List<SaleResponse> getSalesByEmployee(int cc) {
-        return saleRepository.findByEmployeeCC(cc)
+        return saleRepository.findByEmployee_Cc(cc)
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
