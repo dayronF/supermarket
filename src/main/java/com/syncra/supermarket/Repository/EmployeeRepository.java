@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @Repository
 public interface EmployeeRepository extends JpaRepository<EmployeeEntity,Integer>{
 
-boolean existByCc (String cc);
+boolean existByCc (int cc);
 
 List<EmployeeEntity> findByPost(EmployeeEntity.Post post);
 
