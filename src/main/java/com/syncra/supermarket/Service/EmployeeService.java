@@ -109,41 +109,47 @@ public class EmployeeService {
     }
 
     public List<EmployeeResponse> getByPost(String postStr) {
-    Post post = Post.valueOf(postStr.toUpperCase());
+        Post post = Post.valueOf(postStr.toUpperCase());
 
-    List<EmployeeEntity> empleados = employeeRepository.findByPost(post);
-    List<EmployeeResponse> responses = new ArrayList<>();
+        List<EmployeeEntity> empleados = employeeRepository.findByPost(post);
+        List<EmployeeResponse> responses = new ArrayList<>();
 
-    for (EmployeeEntity empleado : empleados) {
-        EmployeeResponse response = new EmployeeResponse();
-        response.setCc(empleado.getCc());
-        response.setName(empleado.getName());
-        response.setPost(empleado.getPost().toString());
-        response.setSalary(empleado.getSalary());
-        response.setEntryDate(empleado.getEntrydate());
+        for (EmployeeEntity empleado : empleados) {
+            EmployeeResponse response = new EmployeeResponse();
+            response.setCc(empleado.getCc());
+            response.setName(empleado.getName());
+            response.setPost(empleado.getPost().toString());
+            response.setSalary(empleado.getSalary());
+            response.setEntryDate(empleado.getEntrydate());
 
-        responses.add(response);
+            responses.add(response);
+        }
+
+        return responses;
     }
 
-    return responses;
-}
+    public List<EmployeeResponse> getByDateRange(LocalDate startDate, LocalDate endDate) {
 
-    public List<EmployeeEntity> getByDateRange(LocalDate startDate, LocalDate endDate) {
+        if (startDate == null || endDate == null || startDate.isAfter(endDate)) {
+            return new ArrayList<>();
+        }
 
-    if (startDate == null || endDate == null || startDate.isAfter(endDate)) {
-        return null;
+        List<EmployeeEntity> empleados = employeeRepository.findByEntryDateBetween(startDate, endDate);
+
+        List<EmployeeResponse> resultado = new ArrayList<>();
+
+        for (EmployeeEntity empleado : empleados) {
+            EmployeeResponse response = new EmployeeResponse();
+            response.setCc(empleado.getCc());
+            response.setName(empleado.getName());
+            response.setPost(empleado.getPost().toString());
+            response.setSalary(empleado.getSalary());
+            response.setEntryDate(empleado.getEntrydate());
+
+            resultado.add(response);
+        }
+
+        return resultado;
     }
-
-    List<EmployeeEntity> empleados = employeeRepository
-            .findByEntryDateBetween(startDate, endDate);
-
-    List<EmployeeEntity> resultado = new ArrayList<>();
-
-    for (EmployeeEntity empleado : empleados) {
-        resultado.add(empleado);
-    }
-
-    return resultado;
-}
 
 }
