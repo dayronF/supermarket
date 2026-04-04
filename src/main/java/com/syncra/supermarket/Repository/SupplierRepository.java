@@ -8,6 +8,6 @@ import com.syncra.supermarket.Entity.SupplierEntity;
 
 public interface SupplierRepository extends JpaRepository<SupplierEntity,Integer>{
 
-boolean ExistByNIt(String nit);
-Optional<SupplierEntity> finByNit(String nit);
+boolean existsByNit(String nit);
+Optional<SupplierEntity> findByNit(String nit);
 }

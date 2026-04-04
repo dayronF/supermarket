@@ -1,16 +1,19 @@
 package com.syncra.supermarket.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.syncra.supermarket.Dto.Employee.EmployeeMessage;
 import com.syncra.supermarket.Dto.Employee.EmployeeRequest;
+import com.syncra.supermarket.Dto.Employee.EmployeeResponse;
 import com.syncra.supermarket.Entity.EmployeeEntity;
 import com.syncra.supermarket.Entity.EmployeeEntity.Post;
 import com.syncra.supermarket.Repository.EmployeeRepository;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -19,69 +22,134 @@ public class EmployeeService {
 
     private final EmployeeRepository employeeRepository;
 
-    public List<EmployeeEntity> getAll() {
-        return employeeRepository.findAll();
+    public List<EmployeeResponse> getAllEmployee() {
+        List<EmployeeEntity> Empleados = employeeRepository.findAll();
+        List<EmployeeResponse> EmpleadosR = new ArrayList<>();
+        for (EmployeeEntity empleado : Empleados) {
+            EmployeeResponse response = new EmployeeResponse();
+            response.setCc(empleado.getCc());
+            response.setName(empleado.getName());
+            response.setPost(empleado.getPost().toString());
+            response.setSalary(empleado.getSalary());
+            response.setEntryDate(empleado.getEntrydate());
+            EmpleadosR.add(response);
+        }
+        return EmpleadosR;
     }
 
-    public EmployeeEntity getById(Integer id) {
-        return employeeRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(
-                    "El empleado no se encuentra por ese id: " + id));
+    public EmployeeResponse getById(Integer id) {
+        Optional<EmployeeEntity> employeeO = employeeRepository.findById(id);
+        if (employeeO.isEmpty()) {
+            return null;
+        }
+
+        EmployeeEntity entity = employeeO.get();
+        EmployeeResponse response = new EmployeeResponse();
+        response.setCc(entity.getCc());
+        response.setName(entity.getName());
+        response.setPost(entity.getPost().toString());
+        response.setSalary(entity.getSalary());
+        response.setEntryDate(entity.getEntrydate());
+
+        return response;
     }
 
-    public EmployeeEntity create(EmployeeRequest request) {
-        if (employeeRepository.existsByCc(request.getCc())) {
-            throw new IllegalArgumentException(
-                    "Ya existe un empleado con ese tipo de cédula: " + request.getCc());
+    public EmployeeMessage create(EmployeeRequest request) {
+        EmployeeMessage message = new EmployeeMessage(null);
+        if (employeeRepository.existByCc(request.getCc())) {
+            return null;
         }
 
         EmployeeEntity employee = new EmployeeEntity();
         employee.setCc(request.getCc());
-        employee.setPost(Post.valueOf(request.getPost()));
         employee.setName(request.getName());
-        employee.setEntryDate(request.getEntryDate());
+        employee.setPost(EmployeeEntity.Post.valueOf(request.getPost()));
         employee.setSalary(request.getSalary());
+        employee.setEntrydate(request.getEntryDate());
 
-        return employeeRepository.save(employee);
+        employeeRepository.save(employee);
+        message.setMessage("Empleado creado exitosamente");
+        return message;
+
     }
 
-    public EmployeeEntity put(Integer id, EmployeeRequest request) {
-        EmployeeEntity employee = getById(id);
+    public EmployeeMessage Update(Integer id, EmployeeRequest request) {
+        Optional<EmployeeEntity> eOptional = employeeRepository.findById(id);
+        EmployeeMessage message = new EmployeeMessage(null);
 
-        if (!employee.getCc().equals(request.getCc()) &&
-                employeeRepository.existsByCc(request.getCc())) {
-            throw new IllegalArgumentException(
-                "Ya existe un empleado con ese tipo de cédula: " + request.getCc());
+        if (eOptional.isEmpty()) {
+            message.setMessage("Empleado no encontrado");
+            return message;
         }
 
-        employee.setCc(request.getCc());
-        employee.setPost(Post.valueOf(request.getPost()));
-        employee.setName(request.getName());
-        employee.setEntryDate(request.getEntryDate());
-        employee.setSalary(request.getSalary());
+        EmployeeEntity entity = eOptional.get();
+        entity.setCc(request.getCc());
+        entity.setName(request.getName());
+        entity.setPost(EmployeeEntity.Post.valueOf(request.getPost()));
+        entity.setSalary(request.getSalary());
+        entity.setEntrydate(request.getEntryDate());
 
-        return employeeRepository.save(employee);
+        employeeRepository.save(entity);
+        message.setMessage("Mensaje actualizado correctamente");
+        return message;
     }
 
-    public void delete(Integer id) {
-        if (!employeeRepository.existsById(id)) {
-            throw new EntityNotFoundException(
-                "El empleado no se encuentra por ese id: " + id);
+    public EmployeeMessage delete(Integer id) {
+        Optional<EmployeeEntity> eOptional = employeeRepository.findById(id);
+        EmployeeMessage message = new EmployeeMessage(null);
+
+        if (eOptional.isEmpty()) {
+            message.setMessage("Empleado no encontrado");
+            return message;
         }
-        employeeRepository.deleteById(id);
+        EmployeeEntity entity = eOptional.get();
+        employeeRepository.delete(entity);
+        message.setMessage("Empleado eliminado exitosamente");
+        return message;
     }
 
-    public List<EmployeeEntity> getByPost(String postStr) {
+    public List<EmployeeResponse> getByPost(String postStr) {
         Post post = Post.valueOf(postStr.toUpperCase());
-        return employeeRepository.findByPost(post);
+
+        List<EmployeeEntity> empleados = employeeRepository.findByPost(post);
+        List<EmployeeResponse> responses = new ArrayList<>();
+
+        for (EmployeeEntity empleado : empleados) {
+            EmployeeResponse response = new EmployeeResponse();
+            response.setCc(empleado.getCc());
+            response.setName(empleado.getName());
+            response.setPost(empleado.getPost().toString());
+            response.setSalary(empleado.getSalary());
+            response.setEntryDate(empleado.getEntrydate());
+
+            responses.add(response);
+        }
+
+        return responses;
     }
 
-    public List<EmployeeEntity> getByDate(LocalDate entryDate) {
-        if (entryDate == null) {
-            throw new IllegalArgumentException(
-                "La fecha no puede ser nula. El formato debe ser: yyyy-MM-dd");
+    public List<EmployeeResponse> getByDateRange(LocalDate startDate, LocalDate endDate) {
+
+        if (startDate == null || endDate == null || startDate.isAfter(endDate)) {
+            return new ArrayList<>();
         }
-        return employeeRepository.findByEntryDate(entryDate);
+
+        List<EmployeeEntity> empleados = employeeRepository.findByEntryDateBetween(startDate, endDate);
+
+        List<EmployeeResponse> resultado = new ArrayList<>();
+
+        for (EmployeeEntity empleado : empleados) {
+            EmployeeResponse response = new EmployeeResponse();
+            response.setCc(empleado.getCc());
+            response.setName(empleado.getName());
+            response.setPost(empleado.getPost().toString());
+            response.setSalary(empleado.getSalary());
+            response.setEntryDate(empleado.getEntrydate());
+
+            resultado.add(response);
+        }
+
+        return resultado;
     }
 
 }

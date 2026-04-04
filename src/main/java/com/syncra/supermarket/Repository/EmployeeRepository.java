@@ -12,9 +12,10 @@ import java.time.LocalDate;
 @Repository
 public interface EmployeeRepository extends JpaRepository<EmployeeEntity,Integer>{
 
+boolean existByCc (int cc);
 
 List<EmployeeEntity> findByPost(EmployeeEntity.Post post);
 
-List<EmployeeEntity> findByEntrydate(LocalDate StarDate , LocalDate EndDate);
+List<EmployeeEntity> findByEntryDateBetween(LocalDate StarDate , LocalDate EndDate);
 
 }
