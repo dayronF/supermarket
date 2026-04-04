@@ -9,7 +9,7 @@ import com.syncra.supermarket.Entity.SupplierProductEntity;
 @Repository
 public interface SupplierProductRepository extends JpaRepository<SupplierProductEntity,Integer> {
 
-List<SupplierProductEntity> FindByProduct(int id);
-List<SupplierProductEntity> FindBySupplier(int nit);
+List<SupplierProductEntity> findByProductId(Integer productId);
+List<SupplierProductEntity> findBySupplierId(Integer supplierId);
 
 }

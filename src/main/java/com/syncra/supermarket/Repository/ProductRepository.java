@@ -11,7 +11,7 @@ import java.util.Optional;
 @Repository
 public interface ProductRepository extends JpaRepository<ProductEntity,Integer>{
 
-boolean ExistBarCode(String barcode);
+boolean existsByBarcode(String barcode);
 List<ProductEntity> findByStateTrue();
 Optional<ProductEntity> findByBarcode(String barcode);
 }

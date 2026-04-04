@@ -8,6 +8,6 @@ import com.syncra.supermarket.Entity.SaleEntity;
 
 public interface SaleRepository extends JpaRepository<SaleEntity,Integer>{
 
-    List<SaleEntity> findByEmployeeCC(int cc );
+    List<SaleEntity> findByEmployee_Cc(int cc);
 
 }
