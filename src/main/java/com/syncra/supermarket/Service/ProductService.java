@@ -25,7 +25,7 @@ public class ProductService {
     public ProductMessage CreateProduct(ProductRequest producto) {
         ProductMessage message = new ProductMessage(null);
 
-        if (productRepository.ExistBarCode(producto.getBarcode())) {
+        if (productRepository.existsByBarcode(producto.getBarcode())) {
             message.setMessage("El codigo de barras ya esta registrado en otro producto el cual es " + producto.getName());
             return message;
         }
@@ -65,6 +65,7 @@ public class ProductService {
             productResponse.setBarcode(product.getBarcode());
             productResponse.setPrice(product.getPrice());
             productResponse.setStock(product.getStock());
+            productResponse.setState(product.isState());
             productResponse.setCategoryName(product.getCategory().getName());
             responses.add(productResponse);
         }
@@ -72,20 +73,18 @@ public class ProductService {
         return responses;
     }
 
-    public ProductMessage SeacrhId(int id) {
+    public ProductResponse SeacrhId(int id) {
         ProductMessage message = new ProductMessage(null);
 
         Optional<ProductEntity> prodOptional = productRepository.findById(id);
         if (prodOptional.isEmpty()) {
-            message.setMessage("Producto no encontrado");
-            return message;
+            return null;
         }
 
         ProductEntity produc = prodOptional.get();
 
         if (!produc.isState()) {
-            message.setMessage("Producto eliminado");
-            return message;
+            return null;
         }
 
         ProductResponse response = new ProductResponse();
@@ -96,7 +95,7 @@ public class ProductService {
         response.setCategoryName(produc.getCategory().getName());
 
         message.setMessage(response.toString());
-        return message;
+        return response;
     }
 
     public ProductMessage Update(int id, ProductRequest productRequest) {
