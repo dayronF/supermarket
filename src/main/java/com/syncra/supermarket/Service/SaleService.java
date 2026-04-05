@@ -30,7 +30,7 @@ public class SaleService {
 
     public SaleResponse createSale(SaleRequest request) {
 
-        EmployeeEntity employee = validateAdmin(request.getEmployeeCc());
+        EmployeeEntity employee = validateCashier(request.getEmployeeCc());
         SaleEntity sale = new SaleEntity();
         sale.setDate(LocalDateTime.now());
         sale.setEmployee(employee);
@@ -120,12 +120,12 @@ public class SaleService {
         return response;
     }
 
-    private EmployeeEntity validateAdmin(Integer cc) {
+    private EmployeeEntity validateCashier(Integer cc) {
         EmployeeEntity employee = employeeRepository.findById(cc)
                 .orElseThrow(() -> new RuntimeException("Empleado no encontrado"));
 
-        if (!employee.getPost().equals(EmployeeEntity.Post.ADMINISTRADOR)) {
-            throw new RuntimeException("No tienes permisos para esta accion");
+        if (!employee.getPost().equals(EmployeeEntity.Post.CAJERO)) {
+            throw new RuntimeException("Solo los cajeros pueden realizar ventas");
         }
 
         return employee;
