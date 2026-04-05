@@ -26,13 +26,14 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
     private final EmployeeRepository employeeRepository;
 
-    public ProductMessage CreateProduct(ProductRequest producto, Integer cc) {
+    public ProductMessage createProduct(ProductRequest producto, Integer cc) {
         validateAdmin(cc);
 
         ProductMessage message = new ProductMessage(null);
 
         if (productRepository.existsByBarcode(producto.getBarcode())) {
-            message.setMessage("El codigo de barras ya esta registrado en otro producto el cual es " + producto.getName());
+            message.setMessage(
+                    "El codigo de barras ya esta registrado en otro producto el cual es " + producto.getName());
             return message;
         }
 
@@ -42,21 +43,21 @@ public class ProductService {
             return message;
         }
 
-        ProductEntity Producto = new ProductEntity();
-        Producto.setName(producto.getName());
-        Producto.setBarcode(producto.getBarcode());
-        Producto.setPrice(producto.getPrice());
-        Producto.setStock(producto.getStock());
-        Producto.setState(true);
-        Producto.setCategory(categoria.get());
+        ProductEntity productos = new ProductEntity();
+        productos.setName(producto.getName());
+        productos.setBarcode(producto.getBarcode());
+        productos.setPrice(producto.getPrice());
+        productos.setStock(producto.getStock());
+        productos.setState(true);
+       productos.setCategory(categoria.get());
 
-        productRepository.save(Producto);
-        message.setMessage("Producto " + Producto.getName() + " creado exitosamente");
+        productRepository.save(productos);
+        message.setMessage("Producto " + productos.getName() + " creado exitosamente");
 
         return message;
     }
 
-    public List<ProductResponse> ListProdcut() {
+    public List<ProductResponse> listProduct() {
 
         List<ProductEntity> productos = productRepository.findByStateTrue();
         List<ProductResponse> responses = new ArrayList<>();
@@ -77,7 +78,7 @@ public class ProductService {
         return responses;
     }
 
-    public ProductResponse SeacrhId(int id) {
+    public ProductResponse seacrhId(int id) {
 
         Optional<ProductEntity> prodOptional = productRepository.findById(id);
         if (prodOptional.isEmpty()) {
@@ -92,6 +93,7 @@ public class ProductService {
 
         ProductResponse response = new ProductResponse();
         response.setId(produc.getId());
+        response.setName(produc.getName());
         response.setBarcode(produc.getBarcode());
         response.setPrice(produc.getPrice());
         response.setStock(produc.getStock());
@@ -100,20 +102,20 @@ public class ProductService {
         return response;
     }
 
-    public ProductMessage Update(int id, ProductRequest productRequest, Integer cc) {
+    public ProductMessage update(int id, ProductRequest productRequest, Integer cc) {
         validateAdmin(cc);
 
         ProductMessage message = new ProductMessage(null);
 
         Optional<ProductEntity> opcion = productRepository.findById(id);
-        Optional<ProductEntity> ExistBarCode = productRepository.findByBarcode(productRequest.getBarcode());
+        Optional<ProductEntity> existBarCode = productRepository.findByBarcode(productRequest.getBarcode());
 
         if (opcion.isEmpty()) {
             message.setMessage("Producto no encontrado");
             return message;
         }
 
-        if (ExistBarCode.isPresent() && ExistBarCode.get().getId() != id) {
+        if (existBarCode.isPresent() && existBarCode.get().getId() != id) {
             message.setMessage("Ya existe un producto con el código de barras: " + productRequest.getName());
             return message;
         }
@@ -137,7 +139,7 @@ public class ProductService {
         return message;
     }
 
-    public ProductMessage DeleteProduct(int id, Integer cc) {
+    public ProductMessage deleteProduct(int id, Integer cc) {
         validateAdmin(cc);
 
         ProductMessage message = new ProductMessage(null);
