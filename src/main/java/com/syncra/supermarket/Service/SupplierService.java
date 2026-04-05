@@ -25,6 +25,7 @@ public class SupplierService {
     private final SupplierRepository supplierRepository;
     private final ProductRepository productRepository;
     private final SupplierProductRepository supplierProductRepository;
+    private final EmployeeRepository employeeRepository;
 
     public SupplierMessage createSupplier(SupplierRequest request) {
 
@@ -162,7 +163,7 @@ public class SupplierService {
         }
 
         ProductEntity product = OptionalP.get();
-        
+
         if (!product.isState()) {
             message.setMessage("No se puede abastecer un producto inactivo");
             return message;
@@ -182,4 +183,36 @@ public class SupplierService {
         return message;
     }
 
+    public SupplierMessage createSupplier(Integer cc, SupplierRequest request) {
+
+        Optional<EmployeeEntity> empleado = employeeRepository.findById(cc);
+
+        if (empleado.isEmpty()) {
+            return new SupplierMessage("Empleado no encontrado");
+        }
+
+        if (empleado.get().getPost() != EmployeeEntity.Post.ADMINISTRADOR) {
+            return new SupplierMessage("No tienes permisos para esta acción");
+        }
+
+        if (request.getName() == null || request.getName().isBlank()) {
+            return new SupplierMessage("El nombre del proveedor es obligatorio");
+        }
+
+        if (request.getNit() == null || request.getNit().isBlank()) {
+            return new SupplierMessage("El NIT es obligatorio");
+        }
+
+        if (supplierRepository.existsByNit(request.getNit())) {
+            return new SupplierMessage("Ya existe un proveedor con el NIT: " + request.getNit());
+        }
+
+        SupplierEntity supplier = new SupplierEntity();
+        supplier.setName(request.getName());
+        supplier.setNit(request.getNit());
+
+        supplierRepository.save(supplier);
+
+        return new SupplierMessage("Proveedor creado correctamente");
+    }
 }
