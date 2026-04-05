@@ -7,9 +7,11 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.syncra.supermarket.Dto.Category.CategoryResponse;
 import com.syncra.supermarket.Dto.Employee.EmployeeMessage;
 import com.syncra.supermarket.Dto.Employee.EmployeeRequest;
 import com.syncra.supermarket.Dto.Employee.EmployeeResponse;
+import com.syncra.supermarket.Entity.CategoryEntity;
 import com.syncra.supermarket.Entity.EmployeeEntity;
 import com.syncra.supermarket.Entity.EmployeeEntity.Post;
 import com.syncra.supermarket.Repository.EmployeeRepository;
@@ -37,13 +39,14 @@ public class EmployeeService {
         return EmpleadosR;
     }
 
-    public EmployeeResponse getById(Integer id) {
-        Optional<EmployeeEntity> employeeO = employeeRepository.findById(id);
-        if (employeeO.isEmpty()) {
+    public EmployeeResponse getById(Integer cc) {
+        Optional<EmployeeEntity> employeeO = employeeRepository.findById(cc);
+
+        if (employeeO.isEmpty())
             return null;
-        }
 
         EmployeeEntity entity = employeeO.get();
+
         EmployeeResponse response = new EmployeeResponse();
         response.setCc(entity.getCc());
         response.setName(entity.getName());
@@ -54,10 +57,20 @@ public class EmployeeService {
         return response;
     }
 
-    public EmployeeMessage create(EmployeeRequest request) {
+    public EmployeeMessage create(EmployeeRequest request, Integer cc) {
         EmployeeMessage message = new EmployeeMessage(null);
+
+        Optional<EmployeeEntity> employeeO = employeeRepository.findById(cc);
+        if (employeeO.isEmpty()) {
+            return new EmployeeMessage("Empleado no encontrado");
+        }
+
+        if (!employeeO.get().getPost().equals(Post.ADMINISTRADOR)) {
+            return new EmployeeMessage("No autorizado para crear empleados");
+        }
+
         if (employeeRepository.existByCc(request.getCc())) {
-            return null;
+            return new EmployeeMessage("Ya existe un empleado con esa cédula");
         }
 
         EmployeeEntity employee = new EmployeeEntity();
@@ -73,14 +86,18 @@ public class EmployeeService {
 
     }
 
-    public EmployeeMessage Update(Integer id, EmployeeRequest request) {
-        Optional<EmployeeEntity> eOptional = employeeRepository.findById(id);
-        EmployeeMessage message = new EmployeeMessage(null);
+    public EmployeeMessage Update(Integer cc, EmployeeRequest request) {
+        Optional<EmployeeEntity> eOptional = employeeRepository.findById(cc);
 
         if (eOptional.isEmpty()) {
-            message.setMessage("Empleado no encontrado");
-            return message;
+            return new EmployeeMessage("Empleado no encontrado");
         }
+
+        if (!eOptional.get().getPost().equals(Post.ADMINISTRADOR)) {
+            return new EmployeeMessage("No autorizado para actualizar empleados");
+        }
+
+        EmployeeMessage message = new EmployeeMessage(null);
 
         EmployeeEntity entity = eOptional.get();
         entity.setCc(request.getCc());
@@ -90,18 +107,23 @@ public class EmployeeService {
         entity.setEntrydate(request.getEntryDate());
 
         employeeRepository.save(entity);
-        message.setMessage("Mensaje actualizado correctamente");
+        message.setMessage("Empleado actualizado correctamente");
         return message;
     }
 
-    public EmployeeMessage delete(Integer id) {
-        Optional<EmployeeEntity> eOptional = employeeRepository.findById(id);
+    public EmployeeMessage delete(Integer cc) {
+        Optional<EmployeeEntity> eOptional = employeeRepository.findById(cc);
         EmployeeMessage message = new EmployeeMessage(null);
 
         if (eOptional.isEmpty()) {
-            message.setMessage("Empleado no encontrado");
-            return message;
+            return new EmployeeMessage("Empleado no encontrado");
         }
+
+        if (!eOptional.get().getPost().equals(Post.ADMINISTRADOR)) {
+            return new EmployeeMessage("No autorizado para eliminar empleados");
+        }
+
+       
         EmployeeEntity entity = eOptional.get();
         employeeRepository.delete(entity);
         message.setMessage("Empleado eliminado exitosamente");
