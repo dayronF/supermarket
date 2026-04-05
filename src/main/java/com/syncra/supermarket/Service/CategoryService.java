@@ -11,7 +11,10 @@ import com.syncra.supermarket.Dto.Category.CategoryRequest;
 import com.syncra.supermarket.Dto.Category.CategoryResponse;
 import com.syncra.supermarket.Dto.Product.ProductResponse;
 import com.syncra.supermarket.Entity.CategoryEntity;
+import com.syncra.supermarket.Entity.EmployeeEntity;
+import com.syncra.supermarket.Entity.EmployeeEntity.Post;
 import com.syncra.supermarket.Repository.CategoryRepository;
+import com.syncra.supermarket.Repository.EmployeeRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,10 +23,20 @@ import lombok.RequiredArgsConstructor;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
-    
+    private final EmployeeRepository employeeRepository;
 
+    public CategoryMessage createCategory(Integer cc, CategoryRequest request) {
 
-    public CategoryMessage createCategory(CategoryRequest request) {
+        Optional<EmployeeEntity> employee = employeeRepository.findById(cc);
+
+        if (employee.isEmpty()) {
+            return new CategoryMessage("Empleado no encontrado");
+        }
+
+        if (!employee.get().getPost().equals(Post.ADMINISTRADOR)) {
+            return new CategoryMessage("Empleado no autorizado para crear categorías");
+
+        }
 
         if (categoryRepository.existsByName(request.getName()))
 
@@ -52,7 +65,7 @@ public class CategoryService {
     public CategoryResponse searchId(int id) {
         Optional<CategoryEntity> categoryOptional = categoryRepository.findById(id);
         if (categoryOptional.isEmpty()) {
-         return null;
+            return null;
         }
         CategoryResponse response = new CategoryResponse();
         response.setId(categoryOptional.get().getId());
@@ -71,7 +84,16 @@ public class CategoryService {
         return response;
     }
 
-    public CategoryMessage updateCategory(int id, CategoryRequest request) {
+    public CategoryMessage updateCategory(Integer cc, int id, CategoryRequest request) {
+
+        Optional<EmployeeEntity> employee = employeeRepository.findById(cc);
+        if (employee.isEmpty()) {
+            return new CategoryMessage("Empleado no encontrado");
+        }
+        if (!employee.get().getPost().equals(Post.ADMINISTRADOR)) {
+            return new CategoryMessage("Empleado no autorizado para actualizar categorías");
+        }
+
         Optional<CategoryEntity> categoryOptional = categoryRepository.findById(id);
         if (categoryOptional.isEmpty()) {
             return new CategoryMessage("Categoría no encontrada");
@@ -82,7 +104,15 @@ public class CategoryService {
         return new CategoryMessage("Categoría " + category.getName() + " actualizada exitosamente");
     }
 
-    public CategoryMessage deleteCategory(int id) {
+    public CategoryMessage deleteCategory(int id, Integer cc) {
+
+        Optional<EmployeeEntity> employee = employeeRepository.findById(cc);
+        if (employee.isEmpty()) {
+            return new CategoryMessage("Empleado no encontrado");
+        }
+        if (!employee.get().getPost().equals(Post.ADMINISTRADOR)) {
+            return new CategoryMessage("Empleado no autorizado para eliminar categorías");
+        }
         if (categoryRepository.existsById(id)) {
             categoryRepository.deleteById(id);
             return new CategoryMessage("Categoría eliminada exitosamente");
