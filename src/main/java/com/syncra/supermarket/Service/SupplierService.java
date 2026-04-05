@@ -27,7 +27,7 @@ public class SupplierService {
     private final SupplierProductRepository supplierProductRepository;
     private final EmployeeRepository employeeRepository;
 
-    public SupplierMessage createSupplier(SupplierRequest request) {
+    public SupplierMessage createSupplier(Integer cc,SupplierRequest request) {
 
         Optional<EmployeeEntity> employee = employeeRepository.findById(cc);
 
@@ -107,15 +107,15 @@ public class SupplierService {
 
         for (SupplierEntity supplier : Proveedores) {
             SupplierResponse sResponse = new SupplierResponse();
-            sResponse.setId(supplier.getId());
-            sResponse.setName(supplier.getName());
-            sResponse.setNit(supplier.getNit());
-            responses.add(sResponse);
+            supplierResponse.setId(supplier.getId());
+            supplierResponse.setName(supplier.getName());
+            supplierResponse.setNit(supplier.getNit());
+            responses.add(supplierResponse);
         }
         return responses;
     }
 
-    public SupplierMessage updateSupplier(Integer id, SupplierRequest request) {
+    public SupplierMessage updateSupplier(Integer cc, Integer id, SupplierRequest request) {
 
         Optional<EmployeeEntity> employee = employeeRepository.findById(cc);
 
@@ -156,7 +156,7 @@ public class SupplierService {
         return new SupplierMessage("Proveedor actualizado");
     }
 
-    public SupplierMessage deleteSupplier(Integer id) {
+    public SupplierMessage deleteSupplier(Integer cc,Integer id) {
 
         Optional<EmployeeEntity> employee = employeeRepository.findById(cc);
 
@@ -227,7 +227,7 @@ public class SupplierService {
 
         SupplierProductEntity entity = new SupplierProductEntity();
         entity.setProduct(product);
-        entity.setSupplier(optionalS.get());
+        entity.setSupplier(optionalSupplier.get());
         entity.setQuantity(request.getQuantity());
         entity.setEntryDate(LocalDateTime.now());
 
@@ -239,8 +239,8 @@ public class SupplierService {
         productRepository.save(product);
 
         SupplierProductEntity entity = new SupplierProductEntity();
-        entity.setProduct(OptionalP.get());
-        entity.setSupplier(OptionalS.get());
+        entity.setProduct(optionalProduct.get());
+        entity.setSupplier(optionalSupplier.get());
         entity.setQuantity(request.getQuantity());
         entity.setEntryDate(LocalDateTime.now());
         supplierProductRepository.save(entity);
