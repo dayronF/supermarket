@@ -5,12 +5,15 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+
 import com.syncra.supermarket.Dto.Product.ProductMessage;
 import com.syncra.supermarket.Dto.Product.ProductRequest;
 import com.syncra.supermarket.Dto.Product.ProductResponse;
 import com.syncra.supermarket.Entity.CategoryEntity;
+import com.syncra.supermarket.Entity.EmployeeEntity;
 import com.syncra.supermarket.Entity.ProductEntity;
 import com.syncra.supermarket.Repository.CategoryRepository;
+import com.syncra.supermarket.Repository.EmployeeRepository;
 import com.syncra.supermarket.Repository.ProductRepository;
 
 import lombok.AllArgsConstructor;
@@ -21,12 +24,16 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final EmployeeRepository employeeRepository;
 
-    public ProductMessage CreateProduct(ProductRequest producto) {
+    public ProductMessage createProduct(ProductRequest producto, Integer cc) {
+        validateAdmin(cc);
+
         ProductMessage message = new ProductMessage(null);
 
         if (productRepository.existsByBarcode(producto.getBarcode())) {
-            message.setMessage("El codigo de barras ya esta registrado en otro producto el cual es " + producto.getName());
+            message.setMessage(
+                    "El codigo de barras ya esta registrado en otro producto el cual es " + producto.getName());
             return message;
         }
 
@@ -34,25 +41,23 @@ public class ProductService {
         if (categoria.isEmpty()) {
             message.setMessage("Categoria no encontrada por id");
             return message;
-
         }
 
-        ProductEntity Producto = new ProductEntity();
-        Producto.setName(producto.getName());
-        Producto.setBarcode(producto.getBarcode());
-        Producto.setPrice(producto.getPrice());
-        Producto.setStock(producto.getStock());
-        Producto.setState(true);
-        Producto.setCategory(categoria.get());
+        ProductEntity productos = new ProductEntity();
+        productos.setName(producto.getName());
+        productos.setBarcode(producto.getBarcode());
+        productos.setPrice(producto.getPrice());
+        productos.setStock(producto.getStock());
+        productos.setState(true);
+       productos.setCategory(categoria.get());
 
-        productRepository.save(Producto);
-        message.setMessage("Producto" + Producto.getName() + "Creado Exitosamente");
+        productRepository.save(productos);
+        message.setMessage("Producto " + productos.getName() + " creado exitosamente");
 
         return message;
-
     }
 
-    public List<ProductResponse> ListProdcut() {
+    public List<ProductResponse> listProduct() {
 
         List<ProductEntity> productos = productRepository.findByStateTrue();
         List<ProductResponse> responses = new ArrayList<>();
@@ -73,8 +78,7 @@ public class ProductService {
         return responses;
     }
 
-    public ProductResponse SeacrhId(int id) {
-        ProductMessage message = new ProductMessage(null);
+    public ProductResponse seacrhId(int id) {
 
         Optional<ProductEntity> prodOptional = productRepository.findById(id);
         if (prodOptional.isEmpty()) {
@@ -89,27 +93,29 @@ public class ProductService {
 
         ProductResponse response = new ProductResponse();
         response.setId(produc.getId());
+        response.setName(produc.getName());
         response.setBarcode(produc.getBarcode());
         response.setPrice(produc.getPrice());
         response.setStock(produc.getStock());
         response.setCategoryName(produc.getCategory().getName());
 
-        message.setMessage(response.toString());
         return response;
     }
 
-    public ProductMessage Update(int id, ProductRequest productRequest) {
+    public ProductMessage update(int id, ProductRequest productRequest, Integer cc) {
+        validateAdmin(cc);
+
         ProductMessage message = new ProductMessage(null);
 
         Optional<ProductEntity> opcion = productRepository.findById(id);
-        Optional<ProductEntity> ExistBarCode = productRepository.findByBarcode(productRequest.getBarcode());
+        Optional<ProductEntity> existBarCode = productRepository.findByBarcode(productRequest.getBarcode());
 
         if (opcion.isEmpty()) {
             message.setMessage("Producto no encontrado");
             return message;
         }
 
-        if (ExistBarCode.isPresent() && ExistBarCode.get().getId() != id) {
+        if (existBarCode.isPresent() && existBarCode.get().getId() != id) {
             message.setMessage("Ya existe un producto con el código de barras: " + productRequest.getName());
             return message;
         }
@@ -125,14 +131,17 @@ public class ProductService {
             message.setMessage("Categoría no encontrada, no se puede actualizar");
             return message;
         }
+
         productEntity.setCategory(categoria.get());
 
         productRepository.save(productEntity);
-        message.setMessage("Producto Actualizado correctamente");
+        message.setMessage("Producto actualizado correctamente");
         return message;
     }
 
-    public ProductMessage DeleteProduct(int id) {
+    public ProductMessage deleteProduct(int id, Integer cc) {
+        validateAdmin(cc);
+
         ProductMessage message = new ProductMessage(null);
 
         Optional<ProductEntity> opcion = productRepository.findById(id);
@@ -146,9 +155,19 @@ public class ProductService {
         productEntity.setState(false);
 
         productRepository.save(productEntity);
-        message.setMessage("Producto eliminado Exitosamente");
+        message.setMessage("Producto eliminado exitosamente");
 
         return message;
     }
 
+    private EmployeeEntity validateAdmin(Integer cc) {
+        EmployeeEntity employee = employeeRepository.findById(cc)
+                .orElseThrow(() -> new RuntimeException("Empleado no encontrado"));
+
+        if (!employee.getPost().equals(EmployeeEntity.Post.ADMINISTRADOR)) {
+            throw new RuntimeException("Solo los administradores pueden realizar esta accion");
+        }
+
+        return employee;
+    }
 }
