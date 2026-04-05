@@ -29,6 +29,16 @@ public class SupplierService {
 
     public SupplierMessage createSupplier(SupplierRequest request) {
 
+        Optional<EmployeeEntity> employee = employeeRepository.findById(cc);
+
+        if (employee.isEmpty()) {
+            return new SupplierMessage("Empleado no encontrado");
+        }
+
+        if (employee.get().getPost() != EmployeeEntity.Post.ADMINISTRADOR) {
+            return new SupplierMessage("No tienes permisos para esta acción");
+        }
+
         if (request.getName() == null || request.getName().isBlank()) {
             return new SupplierMessage("El nombre del proveedor es obligatorio");
         }
@@ -48,6 +58,7 @@ public class SupplierService {
         supplierRepository.save(supplier);
 
         return new SupplierMessage("Proveedor creado correctamente");
+
     }
 
     public SupplierResponse getSupplierById(Integer id) {
@@ -106,6 +117,16 @@ public class SupplierService {
 
     public SupplierMessage updateSupplier(Integer id, SupplierRequest request) {
 
+        Optional<EmployeeEntity> employee = employeeRepository.findById(cc);
+
+        if (employee.isEmpty()) {
+            return new SupplierMessage("Empleado no encontrado");
+        }
+
+        if (employee.get().getPost() != EmployeeEntity.Post.ADMINISTRADOR) {
+            return new SupplierMessage("No tienes permisos para esta acción");
+        }
+
         if (request.getName() == null || request.getName().isBlank()) {
             return new SupplierMessage("El nombre del proveedor es obligatorio");
         }
@@ -137,6 +158,16 @@ public class SupplierService {
 
     public SupplierMessage deleteSupplier(Integer id) {
 
+        Optional<EmployeeEntity> employee = employeeRepository.findById(cc);
+
+        if (employee.isEmpty()) {
+            return new SupplierMessage("Empleado no encontrado");
+        }
+
+        if (employee.get().getPost() != EmployeeEntity.Post.ADMINISTRADOR) {
+            return new SupplierMessage("No tienes permisos para esta acción");
+        }
+
         Optional<SupplierEntity> optional = supplierRepository.findById(id);
 
         if (optional.isEmpty()) {
@@ -145,29 +176,64 @@ public class SupplierService {
 
         supplierRepository.delete(optional.get());
 
-        return new SupplierMessage("Proveedor eliminado");
+        return new SupplierMessage("Proveedor eliminado correctamente");
+
     }
 
-    public SupplierMessage warehouseEntry(SupplierProductRequest request) {
-        SupplierMessage message = new SupplierMessage(null);
+    public SupplierMessage warehouseEntry(Integer cc, SupplierProductRequest request) {
 
-        Optional<ProductEntity> OptionalP = productRepository.findById(request.getProductId());
-        Optional<SupplierEntity> OptionalS = supplierRepository.findById(request.getSupplierId());
-        if (OptionalP.isEmpty()) {
-            message.setMessage("Producto no encontado");
-            return message;
-        }
-        if (OptionalS.isEmpty()) {
-            message.setMessage("Proveedor no encontado");
-            return message;
+        Optional<EmployeeEntity> employee = employeeRepository.findById(cc);
+
+        if (employee.isEmpty()) {
+            return new SupplierMessage("Empleado no encontrado");
         }
 
-        ProductEntity product = OptionalP.get();
+        if (employee.get().getPost() != EmployeeEntity.Post.ADMINISTRADOR &&
+                employee.get().getPost() != EmployeeEntity.Post.CAJERO) {
+            return new SupplierMessage("No tienes permisos para esta acción");
+        }
+
+        if (request.getProductId() == null) {
+            return new SupplierMessage("El ID del producto es obligatorio");
+        }
+
+        if (request.getSupplierId() == null) {
+            return new SupplierMessage("El ID del proveedor es obligatorio");
+        }
+
+        if (request.getQuantity() == null || request.getQuantity() <= 0) {
+            return new SupplierMessage("La cantidad debe ser mayor a 0");
+        }
+
+        Optional<ProductEntity> optionalProduct = productRepository.findById(request.getProductId());
+        Optional<SupplierEntity> optionalSupplier = supplierRepository.findById(request.getSupplierId());
+
+        if (optionalProduct.isEmpty()) {
+            return new SupplierMessage("Producto no encontrado");
+        }
+
+        if (optionalSupplier.isEmpty()) {
+            return new SupplierMessage("Proveedor no encontrado");
+        }
+
+        ProductEntity product = optionalProduct.get();
 
         if (!product.isState()) {
-            message.setMessage("No se puede abastecer un producto inactivo");
-            return message;
+            return new SupplierMessage("No se puede abastecer un producto inactivo");
         }
+
+        product.setStock(product.getStock() + request.getQuantity());
+        productRepository.save(product);
+
+        SupplierProductEntity entity = new SupplierProductEntity();
+        entity.setProduct(product);
+        entity.setSupplier(optionalS.get());
+        entity.setQuantity(request.getQuantity());
+        entity.setEntryDate(LocalDateTime.now());
+
+        supplierProductRepository.save(entity);
+
+        return new SupplierMessage("Entrada de almacén registrada correctamente");
 
         product.setStock(product.getStock() + request.getQuantity());
         productRepository.save(product);
@@ -183,36 +249,4 @@ public class SupplierService {
         return message;
     }
 
-    public SupplierMessage createSupplier(Integer cc, SupplierRequest request) {
-
-        Optional<EmployeeEntity> empleado = employeeRepository.findById(cc);
-
-        if (empleado.isEmpty()) {
-            return new SupplierMessage("Empleado no encontrado");
-        }
-
-        if (empleado.get().getPost() != EmployeeEntity.Post.ADMINISTRADOR) {
-            return new SupplierMessage("No tienes permisos para esta acción");
-        }
-
-        if (request.getName() == null || request.getName().isBlank()) {
-            return new SupplierMessage("El nombre del proveedor es obligatorio");
-        }
-
-        if (request.getNit() == null || request.getNit().isBlank()) {
-            return new SupplierMessage("El NIT es obligatorio");
-        }
-
-        if (supplierRepository.existsByNit(request.getNit())) {
-            return new SupplierMessage("Ya existe un proveedor con el NIT: " + request.getNit());
-        }
-
-        SupplierEntity supplier = new SupplierEntity();
-        supplier.setName(request.getName());
-        supplier.setNit(request.getNit());
-
-        supplierRepository.save(supplier);
-
-        return new SupplierMessage("Proveedor creado correctamente");
-    }
 }
