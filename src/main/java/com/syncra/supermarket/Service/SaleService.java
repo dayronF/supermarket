@@ -30,9 +30,7 @@ public class SaleService {
 
     public SaleResponse createSale(SaleRequest request) {
 
-        EmployeeEntity employee = employeeRepository.findById(request.getEmployeeCc())
-                .orElseThrow(() -> new RuntimeException("Empleado no encontrado"));
-
+        EmployeeEntity employee = validateAdmin(request.getEmployeeCc());
         SaleEntity sale = new SaleEntity();
         sale.setDate(LocalDateTime.now());
         sale.setEmployee(employee);
@@ -120,5 +118,16 @@ public class SaleService {
         response.setDetails(details);
 
         return response;
+    }
+
+    private EmployeeEntity validateAdmin(Integer cc) {
+        EmployeeEntity employee = employeeRepository.findById(cc)
+                .orElseThrow(() -> new RuntimeException("Empleado no encontrado"));
+
+        if (!employee.getPost().equals(EmployeeEntity.Post.ADMINISTRADOR)) {
+            throw new RuntimeException("No tienes permisos para esta accion");
+        }
+
+        return employee;
     }
 }
