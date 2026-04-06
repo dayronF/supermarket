@@ -4,9 +4,11 @@ import com.syncra.supermarket.Dto.Supplier.SupplierMessage;
 import com.syncra.supermarket.Dto.Supplier.SupplierRequest;
 import com.syncra.supermarket.Dto.Supplier.SupplierResponse;
 import com.syncra.supermarket.Dto.SupplierProduct.SupplierProductRequest;
+import com.syncra.supermarket.Entity.EmployeeEntity;
 import com.syncra.supermarket.Entity.ProductEntity;
 import com.syncra.supermarket.Entity.SupplierEntity;
 import com.syncra.supermarket.Entity.SupplierProductEntity;
+import com.syncra.supermarket.Repository.EmployeeRepository;
 import com.syncra.supermarket.Repository.ProductRepository;
 import com.syncra.supermarket.Repository.SupplierProductRepository;
 import com.syncra.supermarket.Repository.SupplierRepository;
@@ -27,7 +29,7 @@ public class SupplierService {
     private final SupplierProductRepository supplierProductRepository;
     private final EmployeeRepository employeeRepository;
 
-    public SupplierMessage createSupplier(Integer cc,SupplierRequest request) {
+    public SupplierMessage createSupplier(Integer cc, SupplierRequest request) {
 
         Optional<EmployeeEntity> employee = employeeRepository.findById(cc);
 
@@ -107,10 +109,10 @@ public class SupplierService {
 
         for (SupplierEntity supplier : Proveedores) {
             SupplierResponse sResponse = new SupplierResponse();
-            supplierResponse.setId(supplier.getId());
-            supplierResponse.setName(supplier.getName());
-            supplierResponse.setNit(supplier.getNit());
-            responses.add(supplierResponse);
+            sResponse.setId(supplier.getId());
+            sResponse.setName(supplier.getName());
+            sResponse.setNit(supplier.getNit());
+            responses.add(sResponse);
         }
         return responses;
     }
@@ -156,7 +158,7 @@ public class SupplierService {
         return new SupplierMessage("Proveedor actualizado");
     }
 
-    public SupplierMessage deleteSupplier(Integer cc,Integer id) {
+    public SupplierMessage deleteSupplier(Integer cc, Integer id) {
 
         Optional<EmployeeEntity> employee = employeeRepository.findById(cc);
 
@@ -234,19 +236,6 @@ public class SupplierService {
         supplierProductRepository.save(entity);
 
         return new SupplierMessage("Entrada de almacén registrada correctamente");
-
-        product.setStock(product.getStock() + request.getQuantity());
-        productRepository.save(product);
-
-        SupplierProductEntity entity = new SupplierProductEntity();
-        entity.setProduct(optionalProduct.get());
-        entity.setSupplier(optionalSupplier.get());
-        entity.setQuantity(request.getQuantity());
-        entity.setEntryDate(LocalDateTime.now());
-        supplierProductRepository.save(entity);
-
-        message.setMessage("Entrada de almacén registrada. Stock actualizado correctamente");
-        return message;
     }
 
 }
