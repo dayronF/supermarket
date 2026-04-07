@@ -8,5 +8,6 @@ import com.syncra.supermarket.Entity.CategoryEntity;
 @Repository
 public interface CategoryRepository extends JpaRepository<CategoryEntity, Integer> {
 
+    boolean existsByName(String name);
 
 }
