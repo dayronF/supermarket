@@ -7,11 +7,9 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.syncra.supermarket.Dto.Category.CategoryResponse;
 import com.syncra.supermarket.Dto.Employee.EmployeeMessage;
 import com.syncra.supermarket.Dto.Employee.EmployeeRequest;
 import com.syncra.supermarket.Dto.Employee.EmployeeResponse;
-import com.syncra.supermarket.Entity.CategoryEntity;
 import com.syncra.supermarket.Entity.EmployeeEntity;
 import com.syncra.supermarket.Entity.EmployeeEntity.Post;
 import com.syncra.supermarket.Repository.EmployeeRepository;
@@ -69,7 +67,7 @@ public class EmployeeService {
             return new EmployeeMessage("No autorizado para crear empleados");
         }
 
-        if (employeeRepository.existByCc(request.getCc())) {
+        if (employeeRepository.existsByCc(request.getCc())) {
             return new EmployeeMessage("Ya existe un empleado con esa cédula");
         }
 
@@ -83,7 +81,6 @@ public class EmployeeService {
         employeeRepository.save(employee);
         message.setMessage("Empleado creado exitosamente");
         return message;
-
     }
 
     public EmployeeMessage Update(Integer cc, EmployeeRequest request) {
@@ -123,7 +120,6 @@ public class EmployeeService {
             return new EmployeeMessage("No autorizado para eliminar empleados");
         }
 
-       
         EmployeeEntity entity = eOptional.get();
         employeeRepository.delete(entity);
         message.setMessage("Empleado eliminado exitosamente");
@@ -143,7 +139,6 @@ public class EmployeeService {
             response.setPost(empleado.getPost().toString());
             response.setSalary(empleado.getSalary());
             response.setEntryDate(empleado.getEntrydate());
-
             responses.add(response);
         }
 
@@ -156,7 +151,7 @@ public class EmployeeService {
             return new ArrayList<>();
         }
 
-        List<EmployeeEntity> empleados = employeeRepository.findByEntryDateBetween(startDate, endDate);
+        List<EmployeeEntity> empleados = employeeRepository.findByEntrydateBetween(startDate, endDate);
 
         List<EmployeeResponse> resultado = new ArrayList<>();
 
@@ -167,11 +162,9 @@ public class EmployeeService {
             response.setPost(empleado.getPost().toString());
             response.setSalary(empleado.getSalary());
             response.setEntryDate(empleado.getEntrydate());
-
             resultado.add(response);
         }
 
         return resultado;
     }
-
 }
