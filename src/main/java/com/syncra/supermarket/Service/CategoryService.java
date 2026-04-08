@@ -1,10 +1,9 @@
 package com.syncra.supermarket.Service;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.syncra.supermarket.Dto.Category.CategoryMessage;
 import com.syncra.supermarket.Dto.Category.CategoryRequest;
@@ -25,33 +24,23 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final EmployeeRepository employeeRepository;
 
+    @Transactional
     public CategoryMessage createCategory(Integer cc, CategoryRequest request) {
+        validateAdmin(cc);
 
-        Optional<EmployeeEntity> employee = employeeRepository.findById(cc);
-
-        if (employee.isEmpty()) {
-            return new CategoryMessage("Empleado no encontrado");
-        }
-
-        if (!employee.get().getPost().equals(Post.ADMINISTRADOR)) {
-            return new CategoryMessage("Empleado no autorizado para crear categorías");
-
-        }
-
-        if (categoryRepository.existsByName(request.getName()))
-
-        {
+        if (categoryRepository.existsByName(request.getName())) {
             return new CategoryMessage("Ya existe una categoría con ese nombre");
         }
 
         CategoryEntity category = new CategoryEntity();
         category.setName(request.getName());
         categoryRepository.save(category);
+
         return new CategoryMessage("Categoría " + category.getName() + " creada exitosamente");
     }
 
+    @Transactional(readOnly = true)
     public List<CategoryResponse> listCategory() {
-
         return categoryRepository.findAll().stream()
                 .map(category -> {
                     CategoryResponse response = new CategoryResponse();
@@ -59,18 +48,18 @@ public class CategoryService {
                     response.setName(category.getName());
                     return response;
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
+    @Transactional(readOnly = true)
     public CategoryResponse searchId(int id) {
-        Optional<CategoryEntity> categoryOptional = categoryRepository.findById(id);
-        if (categoryOptional.isEmpty()) {
-            return null;
-        }
+        CategoryEntity category = categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+
         CategoryResponse response = new CategoryResponse();
-        response.setId(categoryOptional.get().getId());
-        response.setName(categoryOptional.get().getName());
-        response.setProducts(categoryOptional.get().getProducts().stream()
+        response.setId(category.getId());
+        response.setName(category.getName());
+        response.setProducts(category.getProducts().stream()
                 .map(product -> {
                     ProductResponse productResponse = new ProductResponse();
                     productResponse.setId(product.getId());
@@ -80,43 +69,42 @@ public class CategoryService {
                     productResponse.setStock(product.getStock());
                     return productResponse;
                 })
-                .collect(Collectors.toList()));
+                .toList());
+
         return response;
     }
 
+    @Transactional
     public CategoryMessage updateCategory(Integer cc, int id, CategoryRequest request) {
+        validateAdmin(cc);
 
-        Optional<EmployeeEntity> employee = employeeRepository.findById(cc);
-        if (employee.isEmpty()) {
-            return new CategoryMessage("Empleado no encontrado");
-        }
-        if (!employee.get().getPost().equals(Post.ADMINISTRADOR)) {
-            return new CategoryMessage("Empleado no autorizado para actualizar categorías");
-        }
+        CategoryEntity category = categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
 
-        Optional<CategoryEntity> categoryOptional = categoryRepository.findById(id);
-        if (categoryOptional.isEmpty()) {
-            return new CategoryMessage("Categoría no encontrada");
-        }
-        CategoryEntity category = categoryOptional.get();
         category.setName(request.getName());
         categoryRepository.save(category);
+
         return new CategoryMessage("Categoría " + category.getName() + " actualizada exitosamente");
     }
 
+    @Transactional
     public CategoryMessage deleteCategory(int id, Integer cc) {
+        validateAdmin(cc);
 
-        Optional<EmployeeEntity> employee = employeeRepository.findById(cc);
-        if (employee.isEmpty()) {
-            return new CategoryMessage("Empleado no encontrado");
+        CategoryEntity category = categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+
+        categoryRepository.delete(category);
+
+        return new CategoryMessage("Categoría eliminada exitosamente");
+    }
+
+    private void validateAdmin(Integer cc) {
+        EmployeeEntity employee = employeeRepository.findById(cc)
+                .orElseThrow(() -> new RuntimeException("Empleado no encontrado"));
+
+        if (!employee.getPost().equals(Post.ADMINISTRADOR)) {
+            throw new RuntimeException("Empleado no autorizado");
         }
-        if (!employee.get().getPost().equals(Post.ADMINISTRADOR)) {
-            return new CategoryMessage("Empleado no autorizado para eliminar categorías");
-        }
-        if (categoryRepository.existsById(id)) {
-            categoryRepository.deleteById(id);
-            return new CategoryMessage("Categoría eliminada exitosamente");
-        }
-        return new CategoryMessage("Categoría no encontrada");
     }
 }

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.syncra.supermarket.Dto.Sale.SaleRequest;
 import com.syncra.supermarket.Dto.Sale.SaleResponse;
@@ -28,6 +29,7 @@ public class SaleService {
     private final ProductRepository productRepository;
     private final EmployeeRepository employeeRepository;
 
+    @Transactional
     public SaleResponse createSale(SaleRequest request) {
 
         EmployeeEntity employee = validateCashier(request.getEmployeeCc());
@@ -36,7 +38,6 @@ public class SaleService {
         sale.setEmployee(employee);
 
         List<SaleDetailEntity> details = new ArrayList<>();
-
         double subtotal = 0;
 
         for (SaleDetailRequest dto : request.getItems()) {
@@ -49,7 +50,7 @@ public class SaleService {
             }
 
             if (product.getStock() < dto.getQuantity()) {
-                throw new RuntimeException("Stock insuficiente");
+                throw new RuntimeException("Stock insuficiente para: " + product.getName());
             }
 
             product.setStock(product.getStock() - dto.getQuantity());
@@ -62,7 +63,6 @@ public class SaleService {
             detail.setPriceUnitary(product.getPrice());
 
             subtotal += product.getPrice() * dto.getQuantity();
-
             details.add(detail);
         }
 
@@ -79,16 +79,21 @@ public class SaleService {
         return mapToResponse(saved);
     }
 
+    @Transactional(readOnly = true)
     public List<SaleResponse> getAllSales() {
-        return saleRepository.findAll().stream().map(this::mapToResponse).toList();
+        return saleRepository.findAll().stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 
+    @Transactional(readOnly = true)
     public SaleResponse getSaleById(int id) {
         SaleEntity sale = saleRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Venta no encontrada"));
         return mapToResponse(sale);
     }
 
+    @Transactional(readOnly = true)
     public List<SaleResponse> getSalesByEmployee(int cc) {
         return saleRepository.findByEmployee_Cc(cc)
                 .stream()
