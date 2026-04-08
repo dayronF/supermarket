@@ -1,4 +1,4 @@
-package com.syncra.supermarket.Entity;
+    package com.syncra.supermarket.Entity;
 
 import java.time.LocalDateTime;
 

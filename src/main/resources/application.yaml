@@ -24,4 +24,4 @@ logging:
     "[org.hibernate.type.descriptor.sql.BasicBinder]": DEBUG
 
 server:
-  port: ${PORT:8080}
+  port: 8080
