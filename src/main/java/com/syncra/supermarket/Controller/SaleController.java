@@ -24,46 +24,42 @@ public class SaleController {
     private final SaleService saleService;
 
     @PostMapping
-    public ResponseEntity<?> createSale(@Valid @RequestBody SaleRequest request) {
-
+    public ResponseEntity<SaleResponse> createSale(@Valid @RequestBody SaleRequest request) {
         try {
             SaleResponse response = saleService.createSale(request);
-            return new ResponseEntity<>(response, HttpStatus.CREATED);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {
-            return new ResponseEntity<>(new SaleMessage(e.getMessage()), HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 
     @GetMapping
-    public ResponseEntity<?> getAllSales() {
-
+    public ResponseEntity<List<SaleResponse>> getAllSales() {
         try {
             List<SaleResponse> list = saleService.getAllSales();
             return ResponseEntity.ok(list);
         } catch (Exception e) {
-            return new ResponseEntity<>(new SaleMessage(e.getMessage()), HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getSaleById(@PathVariable @Valid int id) {
-
+    public ResponseEntity<SaleResponse> getSaleById(@PathVariable @Valid int id) {
         try {
             SaleResponse response = saleService.getSaleById(id);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return new ResponseEntity<>(new SaleMessage(e.getMessage()), HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 
     @GetMapping("/employee/{cc}")
-    public ResponseEntity<?> getSalesByEmployee(@PathVariable @Valid int cc) {
-
+    public ResponseEntity<List<SaleResponse>> getSalesByEmployee(@PathVariable @Valid int cc) {
         try {
             List<SaleResponse> list = saleService.getSalesByEmployee(cc);
             return ResponseEntity.ok(list);
         } catch (Exception e) {
-            return new ResponseEntity<>(new SaleMessage(e.getMessage()), HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 }
