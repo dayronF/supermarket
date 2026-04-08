@@ -24,70 +24,62 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping
-    public ResponseEntity<?> createProduct(
+    public ResponseEntity<ProductMessage> createProduct(
             @Valid @RequestBody ProductRequest request,
             @RequestParam @Valid Integer cc) {
-
         try {
             ProductMessage response = productService.createProduct(request, cc);
-            return new ResponseEntity<>(response, HttpStatus.CREATED);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {
-            return new ResponseEntity<>(new ProductMessage(e.getMessage()), HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ProductMessage(e.getMessage()));
         }
     }
 
     @GetMapping
-    public ResponseEntity<?> getAllProducts() {
-
+    public ResponseEntity<List<ProductResponse>> getAllProducts() {
         try {
             List<ProductResponse> list = productService.listProduct();
             return ResponseEntity.ok(list);
         } catch (Exception e) {
-            return new ResponseEntity<>(new ProductMessage(e.getMessage()), HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getProductById(@PathVariable @Valid int id) {
-
+    public ResponseEntity<ProductResponse> getProductById(@PathVariable @Valid int id) {
         try {
             ProductResponse response = productService.seacrhId(id);
-
             if (response == null) {
-                return new ResponseEntity<>(new ProductMessage("Producto no encontrado"), HttpStatus.NOT_FOUND);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
-
             return ResponseEntity.ok(response);
-
         } catch (Exception e) {
-            return new ResponseEntity<>(new ProductMessage(e.getMessage()), HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateProduct(
+    public ResponseEntity<ProductMessage> updateProduct(
             @PathVariable @Valid int id,
             @Valid @RequestBody ProductRequest request,
             @RequestParam @Valid Integer cc) {
-
         try {
             ProductMessage response = productService.update(id, request, cc);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return new ResponseEntity<>(new ProductMessage(e.getMessage()), HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ProductMessage(e.getMessage()));
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteProduct(
+    public ResponseEntity<ProductMessage> deleteProduct(
             @PathVariable @Valid int id,
             @RequestParam @Valid Integer cc) {
-
         try {
             ProductMessage response = productService.deleteProduct(id, cc);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return new ResponseEntity<>(new ProductMessage(e.getMessage()), HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ProductMessage(e.getMessage()));
         }
     }
 }

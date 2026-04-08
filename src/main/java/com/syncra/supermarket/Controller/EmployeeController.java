@@ -26,91 +26,81 @@ public class EmployeeController {
     private final EmployeeService employeeService;
 
     @GetMapping
-    public ResponseEntity<?> getAllEmployees() {
-
+    public ResponseEntity<List<EmployeeResponse>> getAllEmployees() {
         try {
             List<EmployeeResponse> list = employeeService.getAllEmployee();
             return ResponseEntity.ok(list);
         } catch (Exception e) {
-            return new ResponseEntity<>(new EmployeeMessage(e.getMessage()), HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     @GetMapping("/{cc}")
-    public ResponseEntity<?> getEmployeeById(@PathVariable @Valid Integer cc) {
-
+    public ResponseEntity<EmployeeResponse> getEmployeeById(@PathVariable @Valid Integer cc) {
         try {
             EmployeeResponse response = employeeService.getById(cc);
-
             if (response == null) {
-                return new ResponseEntity<>(new EmployeeMessage("Empleado no encontrado"), HttpStatus.NOT_FOUND);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
-
             return ResponseEntity.ok(response);
-
         } catch (Exception e) {
-            return new ResponseEntity<>(new EmployeeMessage(e.getMessage()), HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     @PostMapping
-    public ResponseEntity<?> createEmployee(
+    public ResponseEntity<EmployeeMessage> createEmployee(
             @RequestParam @Valid Integer cc,
             @Valid @RequestBody EmployeeRequest request) {
-
         try {
             EmployeeMessage response = employeeService.create(request, cc);
-            return new ResponseEntity<>(response, HttpStatus.CREATED);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {
-            return new ResponseEntity<>(new EmployeeMessage(e.getMessage()), HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new EmployeeMessage(e.getMessage()));
         }
     }
 
     @PutMapping("/{cc}")
-    public ResponseEntity<?> updateEmployee(
+    public ResponseEntity<EmployeeMessage> updateEmployee(
             @PathVariable @Valid Integer cc,
             @Valid @RequestBody EmployeeRequest request) {
-
         try {
             EmployeeMessage response = employeeService.Update(cc, request);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return new ResponseEntity<>(new EmployeeMessage(e.getMessage()), HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new EmployeeMessage(e.getMessage()));
         }
     }
 
     @DeleteMapping("/{cc}")
-    public ResponseEntity<?> deleteEmployee(@PathVariable @Valid Integer cc) {
-
+    public ResponseEntity<EmployeeMessage> deleteEmployee(@PathVariable @Valid Integer cc) {
         try {
             EmployeeMessage response = employeeService.delete(cc);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return new ResponseEntity<>(new EmployeeMessage(e.getMessage()), HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new EmployeeMessage(e.getMessage()));
         }
     }
 
     @GetMapping("/post/{post}")
-    public ResponseEntity<?> getByPost(@PathVariable @Valid String post) {
-
+    public ResponseEntity<List<EmployeeResponse>> getByPost(@PathVariable @Valid String post) {
         try {
             List<EmployeeResponse> list = employeeService.getByPost(post);
             return ResponseEntity.ok(list);
         } catch (Exception e) {
-            return new ResponseEntity<>(new EmployeeMessage("Cargo inválido"), HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 
     @GetMapping("/date-range")
-    public ResponseEntity<?> getByDateRange(
+    public ResponseEntity<List<EmployeeResponse>> getByDateRange(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-
         try {
             List<EmployeeResponse> list = employeeService.getByDateRange(startDate, endDate);
             return ResponseEntity.ok(list);
         } catch (Exception e) {
-            return new ResponseEntity<>(new EmployeeMessage(e.getMessage()), HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 }
