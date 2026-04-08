@@ -25,100 +25,87 @@ public class SupplierController {
     private final SupplierService supplierService;
 
     @PostMapping
-    public ResponseEntity<?> createSupplier(
+    public ResponseEntity<SupplierMessage> createSupplier(
             @RequestParam @Valid Integer cc,
             @Valid @RequestBody SupplierRequest request) {
-
         try {
             SupplierMessage response = supplierService.createSupplier(cc, request);
-            return new ResponseEntity<>(response, HttpStatus.CREATED);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {
-            return new ResponseEntity<>(new SupplierMessage(e.getMessage()), HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new SupplierMessage(e.getMessage()));
         }
     }
 
     @GetMapping
-    public ResponseEntity<?> getAllSuppliers() {
-
+    public ResponseEntity<List<SupplierResponse>> getAllSuppliers() {
         try {
             List<SupplierResponse> list = supplierService.getAllSuppliers();
             return ResponseEntity.ok(list);
         } catch (Exception e) {
-            return new ResponseEntity<>(new SupplierMessage(e.getMessage()), HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getSupplierById(@PathVariable @Valid Integer id) {
-
+    public ResponseEntity<SupplierResponse> getSupplierById(@PathVariable @Valid Integer id) {
         try {
             SupplierResponse response = supplierService.getSupplierById(id);
-
             if (response == null) {
-                return new ResponseEntity<>(new SupplierMessage("Proveedor no encontrado"), HttpStatus.NOT_FOUND);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
-
             return ResponseEntity.ok(response);
-
         } catch (Exception e) {
-            return new ResponseEntity<>(new SupplierMessage(e.getMessage()), HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     @GetMapping("/nit/{nit}")
-    public ResponseEntity<?> getSupplierByNit(@PathVariable @Valid String nit) {
-
+    public ResponseEntity<SupplierResponse> getSupplierByNit(@PathVariable @Valid String nit) {
         try {
             SupplierResponse response = supplierService.getSupplierByNit(nit);
-
             if (response == null) {
-                return new ResponseEntity<>(new SupplierMessage("Proveedor no encontrado"), HttpStatus.NOT_FOUND);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
-
             return ResponseEntity.ok(response);
-
         } catch (Exception e) {
-            return new ResponseEntity<>(new SupplierMessage(e.getMessage()), HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateSupplier(
+    public ResponseEntity<SupplierMessage> updateSupplier(
             @RequestParam @Valid Integer cc,
             @PathVariable @Valid Integer id,
             @Valid @RequestBody SupplierRequest request) {
-
         try {
             SupplierMessage response = supplierService.updateSupplier(cc, id, request);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return new ResponseEntity<>(new SupplierMessage(e.getMessage()), HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new SupplierMessage(e.getMessage()));
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteSupplier(
+    public ResponseEntity<SupplierMessage> deleteSupplier(
             @RequestParam @Valid Integer cc,
             @PathVariable @Valid Integer id) {
-
         try {
             SupplierMessage response = supplierService.deleteSupplier(cc, id);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return new ResponseEntity<>(new SupplierMessage(e.getMessage()), HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new SupplierMessage(e.getMessage()));
         }
     }
 
     @PostMapping("/warehouse-entry")
-    public ResponseEntity<?> warehouseEntry(
+    public ResponseEntity<SupplierMessage> warehouseEntry(
             @RequestParam @Valid Integer cc,
             @Valid @RequestBody SupplierProductRequest request) {
-
         try {
             SupplierMessage response = supplierService.warehouseEntry(cc, request);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return new ResponseEntity<>(new SupplierMessage(e.getMessage()), HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new SupplierMessage(e.getMessage()));
         }
     }
 }
